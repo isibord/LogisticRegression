@@ -1,4 +1,6 @@
-
+import math
+import collections
+import numpy as np
 
 def __CheckEvaluationInput(y, yPredicted):
     # Check sizes
@@ -17,6 +19,11 @@ def __CheckEvaluationInput(y, yPredicted):
     if valueError:
         raise UserWarning("Attempting to evaluate between the true labels and predictions.\n   Arrays contained unexpected value. Must be 0 or 1.")
 
+def __CheckEvaluationCount(y, yPredicted):
+    # Check sizes
+    if(len(y) != len(yPredicted)):
+        raise UserWarning("Attempting to evaluate between the true labels and predictions.\n   Arrays contained different numbers of samples. Check your work and try again.")
+
 def Accuracy(y, yPredicted):
     __CheckEvaluationInput(y, yPredicted)
 
@@ -28,6 +35,30 @@ def Accuracy(y, yPredicted):
             correct.append(0)
 
     return sum(correct)/len(correct)
+
+def CountCorrect(y, yPredicted):
+    __CheckEvaluationInput(y, yPredicted)
+
+    correct = []
+    for i in range(len(y)):
+        if(y[i] == yPredicted[i]):
+            correct.append(1)
+        else:
+            correct.append(0)
+
+    return sum(correct)
+
+def PredictionDiff(xTestRaw, y, yPredicted):
+    
+    __CheckEvaluationCount(y, yPredicted)
+    __CheckEvaluationCount(xTestRaw, y)
+
+    predictionRange = {}
+    for i in range(len(y)):
+        predictionRange[xTestRaw[i]] = y[i] - yPredicted[i]
+
+    return predictionRange
+
 
 def Precision(y, yPredicted):
     numerator = TPCount(y, yPredicted)
@@ -81,6 +112,12 @@ def TPCount(y, yPredicted):
 
     return counter
 
+def UpperAccRange(Accuracy, n):
+    return Accuracy + 1.96 * math.sqrt((Accuracy * (1 - Accuracy) / n))
+
+def LowerAccRange(Accuracy, n):
+    return Accuracy - 1.96 * math.sqrt((Accuracy * (1 - Accuracy) / n))
+
 def ConfusionMatrix(y, yPredicted):
     print("                 Predicted Negative | Predicted Positive")
     print("Actual Negative | TN: " + str(TNCount(y, yPredicted)) + "          | FP: " + str(FPCount(y, yPredicted)))
@@ -88,10 +125,12 @@ def ConfusionMatrix(y, yPredicted):
 
 
 def ExecuteAll(y, yPredicted):
+    accuracyVal = Accuracy(y, yPredicted)
     print(ConfusionMatrix(y, yPredicted))
-    print("Accuracy:", Accuracy(y, yPredicted))
+    print("Accuracy:", accuracyVal)
     print("Precision:", Precision(y, yPredicted))
     print("Recall:", Recall(y, yPredicted))
     print("FPR:", FalsePositiveRate(y, yPredicted))
     print("FNR:", FalseNegativeRate(y, yPredicted))
+    print("95% confidence range:", LowerAccRange(accuracyVal, len(y)), "to", UpperAccRange(accuracyVal, len(y)) )
     

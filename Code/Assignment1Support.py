@@ -48,7 +48,11 @@ def TrainTestSplit(x, y, percentTest = .25):
     return (xTrain, yTrain, xTest, yTest)
 
 def Featurize(xTrainRaw, xTestRaw):
-    words = ['call', 'to', 'your']
+    #words = ['call', 'to', 'your']
+    #words = ['to','you','I','a','the','and','is','in','i','u'] #frequency
+    words = ['Call','call','to','or','FREE','claim','To','mobile','Txt','&'] #mutual information
+    #words = ['Call','call','to','or','FREE','claim','To','mobile','Txt','&', 'call', 'to', 'your']
+    #words = ['Call', 'call', 'to', 'or', 'FREE', 'claim', 'To', 'mobile', 'Txt', '&', 'Your', 'I', 'now!', 'txt', 'a', 'won', 'contact', 'prize', 'STOP', 'Nokia', 'reply', 'our', 'from', 'your', 'Text', 'service', 'per', 'cash', 'i', 'awarded', 'Reply', 'URGENT!', '-', 'Free', 'PO', 'Â£1000', 'Claim', '2', 'Box', 'draw', 'Mobile', 'shows', 'text', 'win', '150ppm', 'Holiday', '4*', 'free', 'Â£100', '16+', 'selected', 'latest', 'This', 'my', 'Get', 'weekly', 'guaranteed', 'Â£2000', '150p', 'Â£5000', 'tone', 'customer', 'receive', 'attempt', 'Valid', 'prize.', 'await', 'for', 'ringtone', '500', 'T&Cs', 'land', 'WON', 'NOW!', 'landline.', 'collection.', '4', 'new', 'stop', 'NOW', '86688', '18', 'entry', 'GUARANTEED.', 'line.', '8007', 'Â£1.50', '16', 'network', 'have', '1st', 'Expires', '12hrs', 'Todays', '18+', '750', '10p', 'WIN', 'Orange', 'CALL']
 
     # featurize the training data, may want to do multiple passes to count things.
     xTrain = []
@@ -56,16 +60,16 @@ def Featurize(xTrainRaw, xTestRaw):
         features = []
 
         # Have a feature for longer texts
-        if(len(x)>40):
-            features.append(1)
-        else:
-            features.append(0)
+        #if(len(x)>40):
+        #    features.append(1)
+        #else:
+         #   features.append(0)
 
         # Have a feature for texts with numbers in them
-        if(any(i.isdigit() for i in x)):
-            features.append(1)
-        else:
-            features.append(0)
+        #if(any(i.isdigit() for i in x)):
+         #   features.append(1)
+        #else:
+         #   features.append(0)
 
         # Have features for a few words
         for word in words:
@@ -80,18 +84,18 @@ def Featurize(xTrainRaw, xTestRaw):
     xTest = []
     for x in xTestRaw:
         features = []
-        
+       
         # Have a feature for longer texts
-        if(len(x)>40):
-            features.append(1)
-        else:
-            features.append(0)
+        #if(len(x)>40):
+        #    features.append(1)
+        #else:
+         #   features.append(0)
 
         # Have a feature for texts with numbers in them
-        if(any(i.isdigit() for i in x)):
-            features.append(1)
-        else:
-            features.append(0)
+        #if(any(i.isdigit() for i in x)):
+         #   features.append(1)
+        #else:
+         #   features.append(0)
 
         # Have features for a few words
         for word in words:
@@ -108,3 +112,29 @@ def InspectFeatures(xRaw, x):
     for i in range(len(xRaw)):
         print(x[i], xRaw[i])
 
+def GetAllDataExceptFold(xTrain, yTrain, i, numFolds):
+    xTrainSplit = partition(xTrain, numFolds)
+    yTrainSplit = partition(yTrain, numFolds)
+
+    xTrainExceptFold = []
+    yTrainExceptFold = []
+    for num in range(numFolds):
+        if num != i:
+            xTrainExceptFold.extend(xTrainSplit[num])
+            yTrainExceptFold.extend(yTrainSplit[num])
+   
+    return (xTrainExceptFold, yTrainExceptFold)
+
+def GetDataInFold(xTrain, yTrain, i, numFolds):
+    return (partition(xTrain, numFolds)[i], partition(yTrain, numFolds)[i])
+
+
+def partition(seq, chunks):
+    """Splits the sequence into equal sized chunks and them as a list"""
+    result = []
+    for i in range(chunks):
+        chunk = []
+        for element in seq[i:len(seq):chunks]:
+            chunk.append(element)
+        result.append(chunk)
+    return result
